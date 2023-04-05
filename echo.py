@@ -9,22 +9,23 @@ def handle_client(conn, addr):
     while True:
         msg = conn.recv(4096).decode("utf-8")
         if msg:
-           msgto  = "TCP | Client address: %s:%s\nData sent by client:\n%s\n" % (
-                addr[0], addr[1], msg)
-           print(msgto)
-           sent_tcp = conn.sendto(msgto.encode(), addr)
+            msgto = "[%s:%s] TCP connection from %s:%s | %s" % (
+               hostname, server_port, addr[0], addr[1], msg)
+            print(msgto)
+
+            sent_tcp = conn.sendto(msgto.encode(), addr)
         else:
-           break
+            break
     conn.close()
 
 def handle_client_udp(server_udp):
     while True:
         data_udp, client_address_udp = server_udp.recvfrom(4096)
         if data_udp:
-           response_udp = "UDP | Client address: %s:%s\nData sent by client:\n%s\n" % (
-                client_address_udp[0], client_address_udp[1], data_udp)
-           print(response_udp)
-           sent_udp = server_udp.sendto(response_udp.encode(), client_address_udp)
+            response_udp = "[%s:%s] UDP connection from %s:%s | %s" % (
+                    hostname, server_port, client_address_udp[0], client_address_udp[1], data_udp)
+            print(response_udp)
+            sent_udp = server_udp.sendto(response_udp.encode(), client_address_udp)
 
 
 def start():
@@ -33,6 +34,7 @@ def start():
         thread = threading.Thread(target=handle_client, args=(conn, addr))
         thread.start()
 
+hostname = socket.gethostname()   
 
 server_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_tcp.bind((server_address, server_port))
